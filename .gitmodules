@@ -9,3 +9,7 @@
 	path = bootkube-ci
 	url = https://github.com/v1k0d3n/bootkube-ci.git
 	branch = master
+[submodule "freeipa_rpc"]
+	path = freeipa_rpc
+	url = https://github.com/lukepatrick/freeipa_rpc.git
+	branch = master
