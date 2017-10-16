@@ -11,3 +11,9 @@ cd charter-nfv-demo
 git submodule init
 git submodule update
 ```
+
+If there were any changes made remotely, and you want to retrive them locally, then issue the following command:
+
+```
+git submodule update --remote --merge
+```
