@@ -1,0 +1,11 @@
+[submodule "armada"]
+	path = armada
+	url = https://github.com/EckyYakov/armada.git
+	branch = master
+[submodule "openstack-helm"]
+	path = openstack-helm
+	url = https://github.com/openstack/openstack-helm.git
+[submodule "bootkube-ci"]
+	path = bootkube-ci
+	url = https://github.com/v1k0d3n/bootkube-ci.git
+	branch = master
