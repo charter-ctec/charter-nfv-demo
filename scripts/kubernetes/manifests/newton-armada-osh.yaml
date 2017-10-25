@@ -1,0 +1,649 @@
+---
+schema: armada/Chart/v1
+metadata:
+  schema: metadata/Document/v1
+  name: helm-toolkit
+data:
+  chart_name: helm-toolkit
+  release: helm-toolkit
+  namespace: helm-toolkit
+  timeout: 300
+  values: {}
+  source:
+    type: git
+    location: https://github.com/openstack/openstack-helm
+    subpath: helm-toolkit
+    reference: 5eb51cf118f9dd2a19def9b4bf4afeec2aa3d3d7
+  dependencies: []
+---
+schema: armada/Chart/v1
+metadata:
+  schema: metadata/Document/v1
+  name: memcached
+data:
+  chart_name: memcached
+  release: memcached
+  namespace: openstack
+  timeout: 300
+  install:
+    no_hooks: false
+  upgrade:
+    no_hooks: false
+  values: {}
+  source:
+    type: git
+    location: https://github.com/openstack/openstack-helm
+    subpath: memcached
+    reference: 5eb51cf118f9dd2a19def9b4bf4afeec2aa3d3d7
+  dependencies:
+    - helm-toolkit
+---
+schema: armada/Chart/v1
+metadata:
+  schema: metadata/Document/v1
+  name: etcd
+data:
+  chart_name: etcd
+  release: etcd
+  namespace: openstack
+  timeout: 3600
+  install:
+    no_hooks: false
+  upgrade:
+    no_hooks: false
+  values: {}
+  source:
+    type: git
+    location: https://github.com/openstack/openstack-helm
+    subpath: etcd
+    reference: 5eb51cf118f9dd2a19def9b4bf4afeec2aa3d3d7
+  dependencies:
+    - helm-toolkit
+---
+schema: armada/Chart/v1
+metadata:
+  schema: metadata/Document/v1
+  name: rabbitmq
+data:
+  chart_name: rabbitmq
+  release: rabbitmq
+  namespace: openstack
+  timeout: 300
+  install:
+    no_hooks: false
+  upgrade:
+    no_hooks: false
+  values: {}
+  source:
+    type: git
+    location: https://github.com/openstack/openstack-helm
+    subpath: rabbitmq
+    reference: 5eb51cf118f9dd2a19def9b4bf4afeec2aa3d3d7
+  dependencies:
+    - helm-toolkit
+---
+schema: armada/Chart/v1
+metadata:
+  schema: metadata/Document/v1
+  name: ingress
+data:
+  chart_name: ingress
+  release: ingress
+  namespace: openstack
+  timeout: 300
+  install:
+    no_hooks: false
+  upgrade:
+    no_hooks: false
+  values: {}
+  source:
+    type: git
+    location: https://github.com/openstack/openstack-helm
+    subpath: ingress
+    reference: 5eb51cf118f9dd2a19def9b4bf4afeec2aa3d3d7
+  dependencies:
+    - helm-toolkit
+---
+schema: armada/Chart/v1
+metadata:
+  schema: metadata/Document/v1
+  name: openvswitch
+data:
+  chart_name: openvswitch
+  release: openvswitch
+  namespace: openstack
+  timeout: 300
+  install:
+    no_hooks: false
+  upgrade:
+    no_hooks: false
+  values:
+    network:
+      interface:
+        external: eth1
+  source:
+    type: git
+    location: https://github.com/openstack/openstack-helm
+    subpath: openvswitch
+    reference: 5eb51cf118f9dd2a19def9b4bf4afeec2aa3d3d7
+  dependencies:
+    - helm-toolkit
+---
+schema: armada/Chart/v1
+metadata:
+  schema: metadata/Document/v1
+  name: libvirt
+data:
+  chart_name: libvirt
+  release: libvirt
+  namespace: openstack
+  timeout: 300
+  install:
+    no_hooks: false
+  upgrade:
+    no_hooks: false
+  values: {}
+  source:
+    type: git
+    location: https://github.com/openstack/openstack-helm
+    subpath: libvirt
+    reference: 5eb51cf118f9dd2a19def9b4bf4afeec2aa3d3d7
+  dependencies:
+    - helm-toolkit
+---
+schema: armada/Chart/v1
+metadata:
+  schema: metadata/Document/v1
+  name: keystone
+data:
+  chart_name: keystone
+  release: keystone
+  namespace: openstack
+  timeout: 300
+  install:
+    no_hooks: false
+  upgrade:
+    no_hooks: false
+  values:
+    bootstrap:
+      enabled: true
+      script: |
+        openstack project create --description 'Charter CTEC' ctec
+        openstack user create --password password charter_admin
+        openstack role add --user charter_admin --user-domain default --project ctec --project-domain default 'admin'
+        openstack project create --description 'Demo Project' demo
+        openstack user create --password password demo
+        openstack role add --user demo --user-domain default --project demo --project-domain default "_member_"
+    pod:
+      replicas:
+        api: 2
+    manifests:
+      job_db_drop: true
+  source:
+    type: git
+    location: https://github.com/openstack/openstack-helm
+    subpath: keystone
+    reference: 5eb51cf118f9dd2a19def9b4bf4afeec2aa3d3d7
+  dependencies:
+    - helm-toolkit
+---
+schema: armada/Chart/v1
+metadata:
+  schema: metadata/Document/v1
+  name: ceph-radosgw-keystone
+data:
+  chart_name: ceph-radosgw-keystone
+  release: ceph-radosgw-keystone
+  namespace: openstack
+  timeout: 3600
+  install:
+    no_hooks: false
+  upgrade:
+    no_hooks: false
+  values:
+    endpoints:
+      identity:
+        namespace: openstack
+        auth:
+          admin:
+            username: charter_admin
+            project_name: ctec
+          user:
+            project_name: demo
+      object_store:
+        namespace: ceph
+      endpoints:
+        ceph_mon:
+          namespace: ceph
+    ceph:
+      rgw_keystone_auth: true
+    network:
+      public: 44.128.124.0/22
+      cluster: 44.128.124.0/22
+    deployment:
+      storage_secrets: false
+      ceph: false
+      rbd_provisioner: false
+      client_secrets: false
+      rgw_keystone_user_and_endpoints: true
+    dependencies:
+      ks_user:
+        jobs:
+        - keystone-bootstrap
+      ks_service:
+        jobs:
+        - keystone-bootstrap
+      ks_endpoints:
+        jobs:
+        - ceph-ks-service
+        - keystone-bootstrap
+  source:
+    type: git
+    location: https://github.com/larryrensing/openstack-helm
+    subpath: ceph
+    reference: demo
+  dependencies:
+    - helm-toolkit
+---
+schema: armada/Chart/v1
+metadata:
+  schema: metadata/Document/v1
+  name: horizon
+data:
+  chart_name: horizon
+  release: horizon
+  namespace: openstack
+  timeout: 300
+  install:
+    no_hooks: false
+  upgrade:
+    no_hooks: false
+  values:
+    network:
+      enable_node_port: true
+    manifests:
+      job_db_drop: true
+  source:
+    type: git
+    location: https://github.com/openstack/openstack-helm
+    subpath: horizon
+    reference: 5eb51cf118f9dd2a19def9b4bf4afeec2aa3d3d7
+  dependencies:
+    - helm-toolkit
+---
+schema: armada/Chart/v1
+metadata:
+  schema: metadata/Document/v1
+  name: glance
+data:
+  chart_name: glance
+  release: glance
+  namespace: openstack
+  timeout: 300
+  install:
+    no_hooks: false
+  upgrade:
+    no_hooks: false
+  values:
+    storage: radosgw
+    bootstrap:
+      enabled: true
+      images:
+        cirros:
+          id: null
+          name: "Cirros 0.3.5 64-bit"
+          source_url: "http://download.cirros-cloud.net/0.3.5/"
+          image_file: "cirros-0.3.5-x86_64-disk.img"
+          min_disk: 1
+          image_type: qcow2
+          container_format: bare
+          private: true
+          properties:
+            hypervisor_type: "qemu"
+            os_distro: "cirros"
+        ubuntu_precise64:
+          id: null
+          name: "Ubuntu Precise 64-bit"
+          source_url: "http://cloud-images.ubuntu.com/precise/current/"
+          image_file: "precise-server-cloudimg-amd64-disk1.img"
+          min_disk: 20
+          image_type: qcow2
+          container_format: bare
+          private: true
+          properties:
+            hypervisor_type: "qemu"
+            os_distro: "ubuntu"
+    pod:
+      replicas:
+        api: 2
+        registry: 2
+    endpoints:
+      identity:
+        auth:
+          admin:
+            username: charter_admin
+            project_name: ctec
+          user:
+            project_name: demo
+    manifests:
+      job_db_drop: true
+    dependencies:
+      bootstrap:
+        jobs:
+        - glance-storage-init
+        - glance-db-sync
+        - glance-ks-user
+        - glance-ks-endpoints
+        - keystone-bootstrap
+      ks_user:
+        jobs:
+        - keystone-bootstrap
+      ks_service:
+        jobs:
+        - keystone-bootstrap
+      ks_endpoints:
+        jobs:
+        - keystone-bootstrap
+  source:
+    type: git
+    location: https://github.com/openstack/openstack-helm
+    subpath: glance
+    reference: 5eb51cf118f9dd2a19def9b4bf4afeec2aa3d3d7
+  dependencies:
+    - helm-toolkit
+---
+schema: armada/Chart/v1
+metadata:
+  schema: metadata/Document/v1
+  name: neutron
+data:
+  chart_name: neutron
+  release: neutron
+  namespace: openstack
+  timeout: 300
+  install:
+    no_hooks: false
+  upgrade:
+    no_hooks: false
+  values:
+    pod:  
+      lifecycle:
+        upgrades:
+          daemonsets:
+            ovs_agent:
+              enabled: false
+    bootstrap:
+      enabled: true
+      script: |
+        openstack network create --share --external --provider-physical-network "public" --provider-network-type vlan --provider-segment '482' provider-482
+        openstack subnet create --subnet-range "44.24.8.0/22" --gateway "44.24.8.1" --network provider-482 --allocation-pool start="44.24.8.100",end="44.24.8.250" --dns-nameserver "44.128.12.15" provider-subnet
+    network:
+      interface:
+        external: eth1
+    conf:
+      neutron:
+        DEFAULT:
+          l3_ha_network_type: vxlan
+      plugins:
+        ml2_conf:
+          ml2_type_vlan:
+            network_vlan_ranges: public:482:482
+        openvswitch_agent:
+          agent:
+            tunnel_types: vxlan
+          ovs:
+            bridge_mappings: public:br-ex
+      metadata_agent:
+        DEFAULT:
+          nova_metadata_ip: 10.96.120.234
+    endpoints:
+      identity:
+        auth:
+          admin:
+            username: charter_admin
+            project_name: ctec
+          user:
+            project_name: demo
+          nova:
+            project_name: demo
+    manifests:
+      job_db_drop: true
+    dependencies:
+      ks_user:
+        jobs:
+        - keystone-bootstrap
+      ks_service:
+        jobs:
+        - keystone-bootstrap
+      ks_endpoints:
+        jobs:
+        - keystone-bootstrap
+        - neutron-ks-service
+  source:
+    type: git
+    location: https://github.com/openstack/openstack-helm
+    subpath: neutron
+    reference: 5eb51cf118f9dd2a19def9b4bf4afeec2aa3d3d7
+  dependencies:
+    - helm-toolkit
+---
+schema: armada/Chart/v1
+metadata:
+  schema: metadata/Document/v1
+  name: nova
+data:
+  chart_name: nova
+  release: nova
+  namespace: openstack
+  timeout: 300
+  install:
+    no_hooks: false
+  upgrade:
+    no_hooks: false
+  values:
+    conf:
+      nova:
+        libvirt:
+          virt_type: qemu
+    bootstrap:
+      enabled: true
+      flavors:
+        options:
+          vnf_tiny:
+              name: "vnf.tiny"
+              id: "auto"
+              ram: 512
+              disk: 1
+              vcpus: 1
+          vnf_small:
+              name: "vnf.small"
+              id: "auto"
+              ram: 2048
+              disk: 20
+              vcpus: 1
+          vnf_medium:
+              name: "vnf.medium"
+              id: "auto"
+              ram: 4096
+              disk: 40
+              vcpus: 2
+          vnf_large:
+              name: "vnf.large"
+              id: "auto"
+              ram: 8192
+              disk: 80
+              vcpus: 4
+          vnf_xlarge:
+              name: "vnf.xlarge"
+              id: "auto"
+              ram: 16384
+              disk: 160
+              vcpus: 8
+    network:
+      metadata:
+        ip: 10.96.120.234
+    manifests:
+      job_db_drop: true
+    dependencies:
+      ks_user:
+        jobs:
+        - keystone-bootstrap
+      ks_service:
+        jobs:
+        - keystone-bootstrap
+      ks_endpoints:
+        jobs:
+        - keystone-bootstrap
+        - nova-ks-service
+    endpoints:
+      identity:
+        auth:
+          admin:
+            username: charter_admin
+            project_name: ctec
+          user:
+            project_name: demo
+          neutron:
+            project_name: demo
+  source:
+    type: git
+    location: https://github.com/openstack/openstack-helm
+    subpath: nova
+    reference: 5eb51cf118f9dd2a19def9b4bf4afeec2aa3d3d7
+  dependencies:
+    - helm-toolkit
+---
+schema: armada/Chart/v1
+metadata:
+  schema: metadata/Document/v1
+  name: cinder
+data:
+  chart_name: cinder
+  release: cinder
+  namespace: openstack
+  timeout: 300
+  install:
+    no_hooks: false
+  upgrade:
+    no_hooks: false
+  values:
+    bootstrap:
+      enabled: false
+    pod:
+      replicas:
+        api: 2
+    endpoints:
+      identity:
+        auth:
+          admin:
+            username: charter_admin
+            project_name: ctec
+          user:
+            project_name: demo
+    manifests:
+      job_db_drop: true
+    dependencies:
+      ks_user:
+        jobs:
+        - keystone-bootstrap
+      ks_service:
+        jobs:
+        - keystone-bootstrap
+      ks_endpoints:
+        jobs:
+        - keystone-bootstrap
+        - cinder-ks-service
+  source:
+    type: git
+    location: https://github.com/openstack/openstack-helm
+    subpath: cinder
+    reference: 5eb51cf118f9dd2a19def9b4bf4afeec2aa3d3d7
+  dependencies:
+    - helm-toolkit
+---
+schema: armada/Chart/v1
+metadata:
+  schema: metadata/Document/v1
+  name: heat
+data:
+  chart_name: heat
+  release: heat
+  namespace: openstack
+  timeout: 300
+  install:
+    no_hooks: false
+  upgrade:
+    no_hooks: false
+  values:
+    pod:
+      mounts:
+        heat_engine:
+          heat_engine:
+            volumes:
+               - name: cloud-config
+                 hostPath:
+                   path: /home/dev/charter-nfv-demo/scripts/openstack/
+            volumeMounts:
+               - name: cloud-config
+                 mountPath: /tmp/config
+    manifests:
+      job_db_drop: true
+    dependencies:
+      ks_user:
+        jobs:
+        - keystone-bootstrap
+      ks_service:
+        jobs:
+        - keystone-bootstrap
+      ks_endpoints:
+        jobs:
+        - keystone-bootstrap
+        - heat-ks-service
+  source:
+    type: git
+    location: https://github.com/openstack/openstack-helm
+    subpath: heat
+    reference: 5eb51cf118f9dd2a19def9b4bf4afeec2aa3d3d7
+  dependencies:
+    - helm-toolkit
+---
+schema: armada/ChartGroup/v1
+metadata:
+  schema: metadata/Document/v1
+  name: openstack-infra-services
+data:
+  description: "OpenStack Infra Services"
+  sequenced: False
+  chart_group:
+    - etcd
+    - rabbitmq
+    - memcached
+    - ingress
+    - libvirt
+    - openvswitch
+---
+schema: armada/ChartGroup/v1
+metadata:
+  schema: metadata/Document/v1
+  name: openstack-components
+data:
+  description: "OpenStack Components"
+  sequenced: False
+  chart_group:
+    - keystone
+    - horizon
+    - glance
+    - neutron
+    - nova
+    - cinder
+    - heat
+---
+schema: armada/Manifest/v1
+metadata:
+  schema: metadata/Document/v1
+  name: armada-manifest
+data:
+  release_prefix: osh
+  chart_groups:
+    - openstack-infra-services
+    - openstack-components
