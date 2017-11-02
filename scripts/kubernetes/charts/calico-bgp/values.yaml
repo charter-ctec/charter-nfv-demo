@@ -1,0 +1,19 @@
+calico:
+  ip_autodetection_method: null
+  pod_ip_cidr: 10.97.0.0/16
+  ctl:
+    install_on_host: false
+
+bgppeer:
+  peerA:
+    ip: BGP_PEER_A_IP
+  peerB:
+    ip: BGP_PEER_B_IP
+  host: KUBERNETES_SERVICE_HOST
+  asn: BGP_PEER_ASN
+
+images:
+  cni: quay.io/calico-bgp/cni:v1.10.0
+  ctl: quay.io/calico-bgp/ctl:v1.5.0
+  node: quay.io/calico-bgp/node:v2.5.1
+  policy_controller: quay.io/calico-bgp/kube-policy-controller:v0.7.0

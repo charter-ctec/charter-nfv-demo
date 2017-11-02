@@ -1,0 +1,18 @@
+---
+# Calico Version v2.2.1
+# http://docs.projectcalico.org/v2.2/releases#v2.2.1
+# This manifest includes the following component versions:
+#   calico-bgp/node:v1.2.1
+#   calico-bgp/cni:v1.8.3
+#   calico-bgp/kube-policy-controller:v0.6.0
+
+# This ConfigMap is used to configure a self-hosted Calico installation.
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: calico-bgp-config
+  namespace: kube-system
+data:
+
+  enable_bgp: "true"
+
