@@ -3,7 +3,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: configure-calico-bgp
+  name: configure-calico-bgp-peer
   namespace: kube-system
   labels:
     k8s-app: calico-bgp
