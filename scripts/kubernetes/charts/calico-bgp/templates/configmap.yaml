@@ -1,10 +1,8 @@
 ---
-# Calico Version v2.2.1
-# http://docs.projectcalico.org/v2.2/releases#v2.2.1
+# Calico Version v
+# http://docs.projectcalico.org/
 # This manifest includes the following component versions:
-#   calico-bgp/node:v1.2.1
-#   calico-bgp/cni:v1.8.3
-#   calico-bgp/kube-policy-controller:v0.6.0
+#   calico/ctl:v1.6.1
 
 # This ConfigMap is used to configure a self-hosted Calico installation.
 kind: ConfigMap
@@ -30,7 +28,7 @@ data:
     apiVersion: v1
     kind: bgpPeer
     metadata:
-      peerIP: {{ .Values.bgppeer.peerA.ip }}
+      peerIP: {{ .Values.bgppeer.peerB.ip }}
       scope: node
       node: {{ .Values.bgppeer.host }}
     spec:
