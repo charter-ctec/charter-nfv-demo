@@ -22,7 +22,7 @@ spec:
       containers:
         # Writes basic configuration to datastore.
         - name: configure-calico-bgp
-          image: quay.io/calico/ctl:v1.6.1
+          image: {{ .Values.images.ctl }}
           args:
           - apply
           - -f
