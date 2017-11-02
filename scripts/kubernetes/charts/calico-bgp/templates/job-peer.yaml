@@ -30,13 +30,6 @@ spec:
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
-          env:
-            # The location of the etcd cluster.
-            - name: ETCD_ENDPOINTS
-              valueFrom:
-                configMapKeyRef:
-                  name: calico-bgp-config
-                  key: etcd_endpoints
       volumes:
        - name: config-volume
          configMap:
