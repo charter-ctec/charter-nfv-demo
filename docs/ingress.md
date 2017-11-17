@@ -74,3 +74,7 @@ Manifest Sample
 * Kubernetes has many ways to expose a Service outside the cluster 
 
 #### Alternatives / Network by NodePort
+
+
+
+![Ingress Examples](ingress.png)

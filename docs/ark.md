@@ -78,7 +78,7 @@ logic (e.g. interfacing with object storage and persistent volumes).
 Looking at a specific example--an ark backup create test-backup command triggers the 
 following operations:
 
-(insert picture)
+![Ark Flow](ark.png)
 
 1. The ark client makes a call to the Kubernetes API server, creating a Backup custom resource (which is stored in etcd).
 2. The BackupController sees that a new Backup has been created, and validates it.
