@@ -1,0 +1,11 @@
+calico:
+
+
+bgppeer:
+  peerA:
+    ip: BGP_PEER_A_IP
+  host: KUBERNETES_SERVICE_HOST
+  asn: BGP_PEER_ASN
+
+images:
+  ctl: quay.io/calico/ctl:v1.6.1

@@ -1,0 +1,25 @@
+---
+# Calico Version v
+# http://docs.projectcalico.org/
+# This manifest includes the following component versions:
+#   calico/ctl:v1.6.1
+
+# This ConfigMap is used to configure a self-hosted Calico installation.
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: calico-bgp-config
+  namespace: kube-system
+data:
+
+  enable_bgp: "true"
+
+  calico-peer.yaml: |
+    apiVersion: v1
+    kind: bgpPeer
+    metadata:
+      peerIP: {{ .Values.bgppeer.peerA.ip }}
+      scope: node
+      node: {{ .Values.bgppeer.host }}
+    spec:
+      asNumber: {{ .Values.bgppeer.asn }}
