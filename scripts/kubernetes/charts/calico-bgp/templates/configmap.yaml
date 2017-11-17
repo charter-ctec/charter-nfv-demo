@@ -23,13 +23,3 @@ data:
       node: {{ .Values.bgppeer.host }}
     spec:
       asNumber: {{ .Values.bgppeer.asn }}
-
-  calico-peer2.yaml: |
-    apiVersion: v1
-    kind: bgpPeer
-    metadata:
-      peerIP: {{ .Values.bgppeer.peerB.ip }}
-      scope: node
-      node: {{ .Values.bgppeer.host }}
-    spec:
-      asNumber: {{ .Values.bgppeer.asn }}

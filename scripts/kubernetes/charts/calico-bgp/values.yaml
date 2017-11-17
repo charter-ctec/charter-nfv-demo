@@ -4,8 +4,6 @@ calico:
 bgppeer:
   peerA:
     ip: BGP_PEER_A_IP
-  peerB:
-    ip: BGP_PEER_B_IP
   host: KUBERNETES_SERVICE_HOST
   asn: BGP_PEER_ASN
 
